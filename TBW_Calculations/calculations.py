@@ -1,5 +1,6 @@
 import numpy as np
 import csv
+from os.path import exists
 
 
 def calculate_bmi(height_m, weight):
@@ -49,24 +50,41 @@ def parse_impedance_file(path_to_file):
         freq_105k_string = row[105][3]
         freq_250k_string = row[250][3]
 
-        freq_5k_int = abs(int(freq_5k_string))
+        freq_5k_int = int(freq_5k_string)
         freq_105k_int = int(freq_105k_string)
         freq_250k_int = int(freq_250k_string)
 
     return freq_5k_int, freq_105k_int, freq_250k_int
 
 
+def file_reader(filepath):
+    # Take in a filepath, read in the lines, then print them out
+    calc_data = open(filepath, "r")
+    lines = calc_data.readlines()
+    for row in lines:
+        print(row.strip())
+
+
 def main():
     # Main function to take in files, calculate the data, write data to text file for analysis
+    print("Enter exit at anytime to end program")
     user_name = input("Name: ").lower()
+    if user_name == "exit":
+        exit()
     date = input("Date (MM-DD-YY): ")
-    height = input("Height[ft]: ")
+    if date == "exit":
+        exit()
+    height = input("Height[in]: ")
+    if height == "exit":
+        exit()
     weight = input("Weight[lbs]: ")
+    if weight == "exit":
+        exit()
 
     test_num = 1
 
     # Convert feet to meters
-    height_m = (float(height)) / 3.281
+    height_m = (float(height)) / 39.37
 
     # convert lbs to kg
     weight_kg = (float(weight)) / 2.205
@@ -76,6 +94,16 @@ def main():
 
     filepath = "../tbw_data/calc_data/"
     user_file = user_name + "_" + date + ".txt"
+
+    # Check to ensure raw data is available
+    checker_path = "../tbw_data/raw_data/" + user_name + "/test_1_" + date + ".csv"
+    if exists(checker_path) is False:
+        print("There is no available data in 'raw_data' folder, please enter test data results")
+        checker = input("Would you like to try again? [Y/N] ").lower()
+        if checker == "y":
+            main()
+        else:
+            exit()
 
     # Create lists to hold data
     tbw_list_105 = []
@@ -143,5 +171,10 @@ def main():
 
         tbw_data.close()
 
+        file_reader(filepath + user_file)
+
 
 main()
+#tbw, tbw_weight = tbw_calc_bmi(-2988.81, 2997, 1.778, 74.03, 23.416)
+#print(tbw)
+#print(tbw_weight)
