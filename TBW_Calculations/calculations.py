@@ -1,6 +1,7 @@
 import numpy as np
 import csv
-from os.path import exists
+import os
+import os.path as path
 
 
 def calculate_bmi(height_m, weight):
@@ -96,8 +97,8 @@ def main():
     user_file = user_name + "_" + date + ".txt"
 
     # Check to ensure raw data is available
-    checker_path = "../tbw_data/raw_data/" + user_name + "/test_1_" + date + ".csv"
-    if exists(checker_path) is False:
+    checker_path = "../tbw_data/raw_data/" + user_name + "/" + date + "/test_1.csv"
+    if path.exists(checker_path) is False:
         print("There is no available data in 'raw_data' folder, please enter test data results")
         checker = input("Would you like to try again? [Y/N] ").lower()
         if checker == "y":
@@ -112,9 +113,16 @@ def main():
     tbw_list_250 = []
     tbw_weight_list_250 = []
 
+    # Count the amount of test files available
+    counter_filepath = "../tbw_data/raw_data/" + user_name + "/" + date + "/"
+    test_file_num = 0
+    for base, dirs, files in os.walk(counter_filepath):
+        for _ in files:
+            test_file_num += 1
+
     # grab the data then calculate the TBW and TBW with weight
-    while test_num < 11:
-        raw_data_filepath = "../tbw_data/raw_data/" + user_name + "/test_" + str(test_num) + "_" + date + ".csv"
+    while test_num <= test_file_num:
+        raw_data_filepath = "../tbw_data/raw_data/" + user_name + "/" + date + "/test_" + str(test_num) + ".csv "
         freq_5k, freq_105k, freq_250k = parse_impedance_file(raw_data_filepath)
 
         # Get the tbw and tbw with weight from 5k and 105k
@@ -175,6 +183,6 @@ def main():
 
 
 main()
-#tbw, tbw_weight = tbw_calc_bmi(-2988.81, 2997, 1.778, 74.03, 23.416)
-#print(tbw)
-#print(tbw_weight)
+# tbw, tbw_weight = tbw_calc_bmi(-2988.81, 2997, 1.778, 74.03, 23.416)
+# print(tbw)
+# print(tbw_weight)
