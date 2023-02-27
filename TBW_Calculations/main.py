@@ -28,12 +28,6 @@ def calculate_avg(data):
     return avg
 
 
-def impedance_data():
-    freq_5k = 5
-    freq_105k = 5
-    return freq_5k, freq_105k
-
-
 def tbw_calc_bmi(ro, rinf, height_m, weight, bmi):
     # TBW calculator function taking in Ro and Rinf, height, weight and BMI for calculations
     # Return calculated values of TBW and TBW dived by weight
@@ -140,7 +134,7 @@ x = 1
 
 # function to change to next image
 def move():
-    if results == False:
+    if not results:
         global x
         if x == 6:
             x = 1
@@ -156,7 +150,7 @@ def move():
             l.config(image=img5)
         x = x + 1
 
-    if results == True:
+    if results:
         if x == 6:
             x = 1
         if x == 1:
