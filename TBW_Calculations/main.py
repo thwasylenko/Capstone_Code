@@ -7,9 +7,9 @@ from PIL import ImageTk
 
 # Global Variables to hold everything
 results = False
-last_tbw_value = 0
+last_tbw_value = 70
 flagged_tbw_value = 0
-avg_tbw_value = 50
+avg_tbw_value = 70
 
 
 # All functions for use
@@ -17,15 +17,6 @@ def calculate_bmi(height_m, weight):
     # BMI calculator taking in height and weight, returning BMI
     bmi = weight / height_m ** 2
     return bmi
-
-
-def calculate_avg(data):
-    # Average calculator function taking in a list, returning the average
-    total = 0
-    for num in data:
-        total += num
-    avg = total / len(data)
-    return avg
 
 
 def tbw_calc_bmi(ro, rinf, height_m, weight, bmi):
@@ -52,7 +43,7 @@ def tbw_calc_bmi(ro, rinf, height_m, weight, bmi):
 def detection(new_value):
     detection_status = False
 
-    old_value_adjust = last_tbw_value - (last_tbw_value * 0.05)
+    old_value_adjust = last_tbw_value - (last_tbw_value * 0.02)
     if new_value <= old_value_adjust and new_value <= avg_tbw_value:
         detection_status = True
 
@@ -60,8 +51,8 @@ def detection(new_value):
 
 
 def data_calc(raw_data_5k, raw_data_105k):
-    height = 5
-    weight = 100
+    height = 71.75
+    weight = 147.4
 
     # Convert feet to meters
     height_m = (float(height)) / 39.37
@@ -72,39 +63,13 @@ def data_calc(raw_data_5k, raw_data_105k):
     # calculate BMI
     user_bmi = calculate_bmi(height_m, weight_kg)
 
-    # Create lists to hold data
-    tbw_weight_list_105 = []
+    # Get the tbw and tbw with weight from 5k and 105k
+    tbw_weight = tbw_calc_bmi(raw_data_105k, raw_data_5k, height_m, weight_kg, user_bmi)
 
-    # grab the data then calculate the TBW and TBW with weight
-    for data in raw_data_5k:
-        freq_5k = raw_data_5k[data]
-        freq_105k = raw_data_105k[data]
-
-        # Get the tbw and tbw with weight from 5k and 105k
-        tbw_weight_105 = tbw_calc_bmi(freq_105k, freq_5k, height_m, weight_kg, user_bmi)
-        tbw_weight_list_105.append(tbw_weight_105)
-
-    # calculate the average from both of the lists
-    avg_tbw_weight_105 = calculate_avg(tbw_weight_list_105)
-
-    detection_status = detection(avg_tbw_weight_105)
-
-    # Write to a file to keep track of tbw value
-    file = open("data_save.txt", "w")
-    file.write(str(avg_tbw_weight_105))
-    file.close()
+    detection_status = detection(tbw_weight)
 
     return detection_status
 
-
-# Check if data is available
-data_available = True
-
-if data_available:
-    data_5k = []
-    data_105k = []
-
-    results = data_calc(data_5k, data_105k)
 
 # Below code taken from (https://www.geeksforgeeks.org/create-a-sideshow-application-in-python/)
 
@@ -134,6 +99,23 @@ x = 1
 
 # function to change to next image
 def move():
+
+    # Check to see if data is available
+    data_available = True
+
+    # If there is data perform analysis
+    if data_available:
+        file = open("detection.txt", "r")
+        data_raw_5k = file.readline()
+        data_raw_105k = file.readline()
+        file.close()
+
+        data_5k = int(data_raw_5k.strip())
+        data_105k = int(data_raw_105k.strip())
+
+        results = data_calc(data_5k, data_105k)
+
+    # Display image according to results
     if not results:
         global x
         if x == 6:
